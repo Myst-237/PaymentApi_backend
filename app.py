@@ -133,15 +133,10 @@ def send_verification_code_bot(driver, verificationCode):
         script0 = 'let verifyNumber = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > div > form > div > div:nth-child(3) > div.mt-2 > button"); verifyNumber.click()'
         time.sleep(1)
         driver.execute_script(script0)
-        notification = WebDriverWait(driver,10).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, 'body > div:nth-child(63) > div:nth-child(2) > div > div > div.Vue-Toastification__toast-component-body > span'))
+        nameOnCardInput = WebDriverWait(driver,20).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/section[1]/div/div[2]/div[1]/div[1]/input'))
         )
-        notification_data = notification.get_attribute('innerHTML')
-        print(notification_data)
-        if notification_data == 'Success! Your phone number was successfully verified.':
-            return True
-        else:
-            return False
+        return True
     except Exception as e:
         print(e)
         return False
@@ -241,10 +236,12 @@ def send_card_details_bot(driver, cardDetails):
         )
         cardNumberInput.send_keys(cardDetails.cardNumber)
         time.sleep(1)
-        script0 = f'let monthButton = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > form > section.row.bg-gray-lighter.py-2 > div > div.CreditCardFormComponent > div.row.flex-nowrap.align-items-center > div:nth-child(1) > div > div.eg-select.mdc-select.mdc-select--filled > div.mdc-select__menu.mdc-menu.mdc-menu-surface > ul > li:nth-child({monthDictionary[cardDetails.month]}) > a; monthButton.click()'
+        monthNumber = monthDictionary[cardDetails.month]
+        script0 = 'let monthButton = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > form > section.row.bg-gray-lighter.py-2 > div > div.CreditCardFormComponent > div.row.flex-nowrap.align-items-center > div:nth-child(1) > div > div.eg-select.mdc-select.mdc-select--filled > div.mdc-select__menu.mdc-menu.mdc-menu-surface > ul > li:nth-child('+monthNumber+') > a"); monthButton.click()'
         driver.execute_script(script0)
         time.sleep(1)
-        script1 = f'let yearButton = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > form > section.row.bg-gray-lighter.py-2 > div > div.CreditCardFormComponent > div.row.flex-nowrap.align-items-center > div.px-0.col-4 > div > div.eg-select.mdc-select.mdc-select--filled.mdc-select--focused.mdc-select--activated > div.mdc-select__menu.mdc-menu.mdc-menu-surface.mdc-menu-surface--open > ul > li:nth-child({yearDictionary[cardDetails.year]}) > a"); yearButton.click()'
+        yearNumber = yearDictionary[cardDetails.year]
+        script1 = 'let yearButton = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > form > section.row.bg-gray-lighter.py-2 > div > div.CreditCardFormComponent > div.row.flex-nowrap.align-items-center > div.px-0.col-4 > div > div.eg-select.mdc-select.mdc-select--filled > div.mdc-select__menu.mdc-menu.mdc-menu-surface > ul > li:nth-child('+yearNumber+') > a"); yearButton.click()'
         driver.execute_script(script1)
         cvvInput = WebDriverWait(driver,5).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/section[1]/div/div[2]/div[3]/div[3]/div/div[1]/input'))
@@ -271,7 +268,8 @@ def send_card_details_bot(driver, cardDetails):
         )
         cityInput.send_keys(cardDetails.city)
         time.sleep(1)
-        script2 = f'let stateButton = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > form > section:nth-child(2) > div > div.row > div.col-8 > div > div.eg-select.mdc-select.mdc-select--filled.mdc-select--focused.mdc-select--activated > div.mdc-select__menu.mdc-menu.mdc-menu-surface.mdc-menu-surface--open > ul > li:nth-child({us_state[cardDetails.state]}) > a")'
+        usStateNumber = us_state[cardDetails.state]
+        script2 = 'let stateButton = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > form > section:nth-child(2) > div > div.row > div.col-8 > div > div.eg-select.mdc-select.mdc-select--filled > div.mdc-select__menu.mdc-menu.mdc-menu-surface > ul > li:nth-child('+usStateNumber+') > a"); stateButton.click()'
         driver.execute_script(script2)
         time.sleep(1)
         zipInput = WebDriverWait(driver,5).until(
@@ -354,13 +352,12 @@ def send_phone_number():
                 db.session.commit()
                 #get the card details sent by the user
                 cardDetails = get_card_details(cardRef, 300)
-                print(cardDetails)
                 if cardDetails is not None:
                     card_details_sent = send_card_details_bot(driver,cardDetails)
                     if card_details_sent:
                         time.sleep(10) #time to see the result in headfull mode
                         driver.quit()
-                        return jsonify({'success': True})
+                        return jsonify({'success': True, 'message': 'successfully send card detials'})
                     else:
                         return jsonify({'success': False, 'message': 'failed to send card Details'})
                 else:
@@ -427,7 +424,6 @@ def send_payment_details():
     )
     db.session.add(cardDetails)
     db.session.commit()
-    print(cardDetails.cardRef)
     return jsonify({'success': True})
 
 
