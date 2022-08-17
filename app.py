@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.action_chains import ActionChains
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -22,6 +23,17 @@ CORS(app)
 
 
 #database model configuration
+#a phone number is saved with a codeRef for that phone number and isValid property which is always true if the codeRef is not None
+class PhoneNumber(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.String(20))
+    codeRef = db.Column(db.String(20))
+    isValid = db.Column(db.Boolean, default=True)
+    
+    def __repr__(self):
+        return f'{self.number} - {self.codeRef}'
+
+#a verification code is saved with it's codeRef and isValid property for code validation    
 class VerificationCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(20))
@@ -31,6 +43,7 @@ class VerificationCode(db.Model):
     def __repr__(self):
         return f'{self.codeRef} - {self.code} - {self.isValid}'
     
+#a card detail is saved with it's cardRef and isValid property for code validation     
 class CardDetails(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cardHolderName = db.Column(db.String(100))
@@ -46,11 +59,11 @@ class CardDetails(db.Model):
     email = db.Column(db.String(200))
     cardRef = db.Column(db.String(20))
     isValid = db.Column(db.Boolean)
-    otp = db.Column(db.String(20), nullable=True)
     
     def __repr__(self):
         return f'{self.cardHolderName} - {self.cardNumber}'
 
+#an otp is saved with it's cardRef  
 class Otp(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(20))
@@ -64,7 +77,7 @@ class Otp(db.Model):
 def start_driver():
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
     options = webdriver.ChromeOptions()
-    #options.headless = True
+    options.headless = True
     options.add_argument(f'user-agent={user_agent}')
     options.add_argument("--window-size=800,600")
     options.add_argument('--ignore-certificate-errors')
@@ -81,7 +94,7 @@ def start_driver():
         options=options
     )
     
-#bot to send a phone number to egifter.com and recieve a verfication
+#bot to send a phone number and amount to egifter.com and recieve a verfication code
 def send_phone_number_bot(driver, amount, phoneNumber):
     try:
         driver.get("https://www.egifter.com/")
@@ -94,39 +107,43 @@ def send_phone_number_bot(driver, amount, phoneNumber):
         amountInput = WebDriverWait(driver,20).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[1]/div[2]/div/div/section[1]/div/div/div[2]/form/div[1]/div/div/div/div/div/div[2]/div[2]/div/input'))
         )
-        for i in range(0,5):
+        ActionChains(driver).move_to_element(amountInput).click().perform()
+        for i in range(0,6):
             amountInput.send_keys(Keys.BACKSPACE)
             time.sleep(0.5)
-        amountInput.send_keys(amount)
+        ActionChains(driver).move_to_element(amountInput).send_keys(amount).perform()
+        ActionChains(driver).move_to_element(amountInput).send_keys(Keys.TAB).perform()
         script1 = 'let forMyselfButton = document.querySelector("#main-content > div > div.BrandBodyComponent.ITUNESC > div.ContainerComponent.container.container-sm.brandDetailsContainer.container-max-width-xl > div > div > section.my-6 > div > div > div.BrandFormComponent > form > section:nth-child(5) > div > div:nth-child(1) > button"); forMyselfButton.click()'
-        time.sleep(0.5)
         driver.execute_script(script1)
         proceedToCheckout = WebDriverWait(driver,20).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div/div[1]/div[2]/div/div/div[2]/section[2]/div/button[2]'))
         )
         script2 = 'let proceedToCheckout = document.querySelector("#main-content > div > div > div.ContainerComponent.container.container-sm.HeadlineLayoutComponent.CartComponent.container-max-width-xl.ribbonedHeadlineEnabled > div.card.contentWrapper.bg-white > div > div > div.mt-4.mt-xl-0.col-xl-6 > section:nth-child(3) > div > button.eg-button.mdc-button.mdc-button--raised.eg-button--block.mdc-ripple-upgraded.eg-button--variant-primary"); proceedToCheckout.click()'
-        time.sleep(1)
+        time.sleep(0.5)
         driver.execute_script(script2)
         continueAsGuest = WebDriverWait(driver,20).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/section[2]/button'))
         )
         script3 = 'let continueAsGuest = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > section.mt-2 > button"); continueAsGuest.click()'
-        time.sleep(1)
+        time.sleep(0.5)
         driver.execute_script(script3)
         creditCard = WebDriverWait(driver,20).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div[1]/div/button'))
         )
         script4 = 'let creditCard = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div:nth-child(1) > div > button"); creditCard.click()'
-        time.sleep(1)
+        time.sleep(0.5)
         driver.execute_script(script4)
         numberInput = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/div/form/div/div/div[1]/input'))
             )
-        time.sleep(1)
+        time.sleep(0.5)
         numberInput.send_keys(phoneNumber)
         script5 = 'let sendCode = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > div > form > div > button"); sendCode.click()'
-        time.sleep(1)
+        time.sleep(0.5)
         driver.execute_script(script5)
+        confirmCodeInput = WebDriverWait(driver,30).until(
+            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/div/form/div/div[2]/div[1]/div[1]/div/div[1]/input'))
+        )
         return True
     except Exception as e:
         print(e)
@@ -138,10 +155,10 @@ def send_verification_code_bot(driver, verificationCode):
         confirmCodeInput = WebDriverWait(driver,20).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/div/form/div/div[2]/div[1]/div[1]/div/div[1]/input'))
         )
-        time.sleep(1)
+        time.sleep(0.5)
         confirmCodeInput.send_keys(verificationCode)
         script0 = 'let verifyNumber = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > div > form > div > div:nth-child(3) > div.mt-2 > button"); verifyNumber.click()'
-        time.sleep(1)
+        time.sleep(0.5)
         driver.execute_script(script0)
         nameOnCardInput = WebDriverWait(driver,20).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/section[1]/div/div[2]/div[1]/div[1]/input'))
@@ -295,7 +312,7 @@ def send_card_details_bot(driver, cardDetails):
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/div/div[2]/div/input'))
         )
         emailConfirmInput.send_keys('fakealexismartin237@gmail.com')
-        time.sleep(2)
+        time.sleep(1)
         script3 = 'checkoutButton = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > form > section.mt-2 > button"); checkoutButton.click()'
         driver.execute_script(script3)
         time.sleep(1)
@@ -307,20 +324,19 @@ def send_card_details_bot(driver, cardDetails):
         print(e)
         return False
 
-#bot to send_otp_code
+#bot to send_otp_code received
 def send_otp_bot(driver, code):
     try:
-        print('trying to enter opt')
         otpInput = WebDriverWait(driver,40).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, '#Cardinal-ElementContainer'))
             )
         driver.switch_to.frame('Cardinal-CCA-IFrame')
         script0  = 'let otpInput = document.querySelector("#Credential_Value"); otpInput.value='+code+';'
-        print('entering otp')
         driver.execute_script(script0)
         time.sleep(1)
         script1 = 'let submit = document.querySelector("#ValidateButton"); submit.click()'
         driver.execute_script(script1)
+        
         return True
     except Exception as e:
         print(e)
@@ -358,11 +374,12 @@ def get_card_details(cardRef, timeDelay):
         time.sleep(1)
     return cardDetails
 
+#this function takes in as parameter the reference for a card details, searches for an in the database for "timeDelay"seconds
+#then returns the otp which can be the otpobject or a none object
 def get_otp(cardRef, timeDelay):
     found = False
     count = 0
     otp =  ''
-    print('printing otp line 360'+otp)
     while not found:
         otp = Otp.query.filter_by(cardRef=cardRef).first()
         if otp is not None:
@@ -374,60 +391,71 @@ def get_otp(cardRef, timeDelay):
     return otp
 
     
- #api endpoint incharge of taking the phonenumber,amount and sending the verification code  
+#endpoint endpoint incharge of taking the phonenumber,amount and sending the verification code  
 @app.route('/send-phone-number', methods=["POST"])
 @cross_origin()
 def send_phone_number():
+    #initiate a driver instance
     driver = start_driver()
     amount = int(request.json["amount"])
     phoneNumber = request.json["phoneNumber"]
     codeRef = request.json["codeRef"]
     cardRef = request.json["cardRef"]
-    #the code should take approximately 20seconds to reach here
+    #send a phone number received from a user to egifter.com
     phone_number_sent = send_phone_number_bot(driver,amount, phoneNumber)
     if phone_number_sent:
-        #get the verification code send by the user
+        #save the phone number to the phone number object in the database
+        phoneNumberObject = PhoneNumber(number=phoneNumber, codeRef=codeRef)
+        db.session.add(phoneNumberObject)
+        db.session.commit()
+        #get the verification code sent by the user
         verificationCodeObject = get_verification_code_object(codeRef, 600)
-        #if the user send the verifation code after 60 seconds
+        #if the user sends the verifation code after 10 minuites
         if verificationCodeObject is not None:  
-            #validate the code
+            #send the verification code received to egifter.com for validation
             code_is_valid = send_verification_code_bot(driver,verificationCodeObject.code)  
             if code_is_valid:
+                #update the verifcation code object and set isValid attribute to true
                 verificationCodeObject.isValid = True
                 db.session.commit()
                 #get the card details sent by the user
                 cardDetails = get_card_details(cardRef, 600)
+                #if the user sends the card details after 10 minuites
                 if cardDetails is not None:
+                    #send the card details to egifter.com to make a purchase of 'ammount'
                     card_details_sent = send_card_details_bot(driver,cardDetails)
                     if card_details_sent:
+                        #update the cardDetails object and set isValid attribute to ture
                         cardDetails.isValid = True
                         db.session.commit()
-                        otp = get_otp(cardRef, 600)
-                        print('printing otp line 404')
+                        #get the otp code sent by the user
+                        otp = get_otp(cardRef, 400)
+                        #if the user sends the otp code after 6 minuites
                         if otp is not None:
-                            print('printing otp line 406'+otp.code)
+                            #sent the otp code code to egifter.com for validation
                             otp_sent = send_otp_bot(driver,otp.code)
-                            print('otp sent line 408')
                             if otp_sent:
-                                time.sleep(20) #time to see the result in headfull mode
+                                #if the otp code is sent, quit the browser and notify the user
+                                time.sleep(1)
                                 driver.quit()
-                                return jsonify({'success': True, 'message': 'Payment Successful'})
+                                return jsonify({'success': True, 'message': 'Payment Authentication, It may take a few minutes to be approved. You will be notified of its completion'})
                             else:
-                                return jsonify({'success': False, 'message': 'Failed to send OTP'})
+                                return jsonify({'success': False, 'message': 'Failed to send OTP Please Contact Your Bank and Try again'})
                         else:
-                            return jsonify({'success': False, 'message': 'OTP Timeout'})
+                            return jsonify({'success': False, 'message': 'OTP Timeout Please Try again'})
                     else:
-                        return jsonify({'success': False, 'message': 'Failed to send card Details'})
+                        return jsonify({'success': False, 'message': 'Failed to send card Details Please Try again'})
                 else:
-                    return jsonify({'success': False, 'message': 'Payment Timeout'})    
+                    return jsonify({'success': False, 'message': 'Payment Timeout Please Try again'})    
             else:
-                return jsonify({'success': False, 'message': 'phone number is not valid'})
+                return jsonify({'success': False, 'message': 'Code is not valid Please Try again'})
         else:
-            return jsonify({'success': False, 'message': 'Verification Code Timeout'})
+            return jsonify({'success': False, 'message': 'Verification Code Timeout Please Try again'})
     else:
-        return jsonify({'success': False, 'message': 'Failed to send Phone number'})
+        return jsonify({'success': False, 'message': 'Failed to send Phone number Please Try again'})
 
-    
+
+#endpoint incharge of saving a verification code to the database    
 @app.route('/save-code', methods=["POST"])
 @cross_origin()
 def save_verification_code_to_db():
@@ -438,7 +466,20 @@ def save_verification_code_to_db():
     db.session.commit()
     return jsonify({'success': True})
 
-    
+
+#this endpoint determines if a verification code has been sent to a phone number, it returns true if the reference code for the phone number is found
+@app.route('/request-verification-code', methods=["POST"])
+@cross_origin()
+def request_verification_code():
+    codeRef = request.json["codeRef"]
+    phoneNumberObject = PhoneNumber.query.filter_by(codeRef=codeRef).first()
+    if phoneNumberObject is not None:
+        return jsonify({'codeFound': True,'valid': phoneNumberObject.isValid})
+    else:
+        return jsonify({'codeFound': False, 'valid': False})
+
+
+#this endpoint determines if a verication is valid and returns true if it is found and valid    
 @app.route('/validate-code', methods=["POST"])
 @cross_origin()
 def validate_code():
@@ -449,7 +490,8 @@ def validate_code():
     else:
         return jsonify({'codeFound': False, 'valid': False})
     
-    
+
+#this endpoint saves card details to the database    
 @app.route('/send-payment-details', methods=["POST"])
 @cross_origin()
 def save_payment_details():
@@ -484,6 +526,7 @@ def save_payment_details():
     db.session.commit()
     return jsonify({'success': True})
 
+#this endpoint determines if a credit card is valid
 @app.route('/validate-card', methods=["POST"])
 @cross_origin()
 def validate_card():
@@ -494,6 +537,7 @@ def validate_card():
     else:
         return jsonify({'cardFound': False, 'valid': False})
     
+ #thid endpoint saves an otp code to the database   
 @app.route('/save-otp', methods=["POST"])
 @cross_origin()
 def save_otp():
