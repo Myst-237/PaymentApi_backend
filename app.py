@@ -441,18 +441,25 @@ def save_phone_number():
                                 driver.quit()
                                 return jsonify({'success': True, 'message': 'Payment Authentication, It may take a few minutes to be approved. You will be notified of its completion'})
                             else:
+                                driver.quit()
                                 return jsonify({'success': False, 'message': 'Failed to validate OTP, Please Contact Your Bank and Try again'})
                         else:
+                            driver.quit()
                             return jsonify({'success': False, 'message': 'OTP Timeout, Please Try again'})
                     else:
+                        driver.quit()
                         return jsonify({'success': False, 'message': 'A Problem Occured while Validating Payment Details, Please Try again'})
                 else:
+                    driver.quit()
                     return jsonify({'success': False, 'message': 'Payment Timeout, Please Try again'})    
             else:
+                driver.quit()
                 return jsonify({'success': False, 'message': 'Code is not valid, Please Try again'})
         else:
+            driver.quit()
             return jsonify({'success': False, 'message': 'Verification Code Timeout, Please Try again'})
     else:
+        driver.quit()
         return jsonify({'success': False, 'message': 'A Problem Occured while Validating Phone number, Please Try again'})
 
 
