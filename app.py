@@ -77,9 +77,9 @@ class Otp(db.Model):
 def start_driver():
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
     options = webdriver.ChromeOptions()
-    #options.headless = True
+    options.add_argument("--headless")
+    options.add_argument("window-size=1920,1080")
     options.add_argument(f'user-agent={user_agent}')
-    options.add_argument("--window-size=800,600")
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--allow-running-insecure-content')
     options.add_argument("--disable-extensions")
