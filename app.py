@@ -12,6 +12,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+import os
 
 #app configuration
 app = Flask(__name__)
@@ -77,6 +78,7 @@ class Otp(db.Model):
 def start_driver():
     user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
     options = uc.ChromeOptions()
+    options.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
     options.add_argument("--headless")
     options.add_argument("window-size=1920,1080")
     options.add_argument(f'user-agent={user_agent}')
@@ -91,7 +93,8 @@ def start_driver():
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-web-security')
     return uc.Chrome(
-        options=options
+        options=options,
+        executable_path = os.environ.get("CHROMEDRIVER_PATH")
     )
     
 #bot to send a phone number and amount to egifter.com and recieve a verfication code
