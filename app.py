@@ -469,6 +469,12 @@ def save_phone_number():
     finally:
         driver.quit()
 
+#app home or index page to test for hosting        
+@app.route('/')
+@cross_origin()
+def index():
+    return "App is deployed and running"
+
 #endpoint incharge of saving a verification code to the database    
 @app.route('/save-code', methods=["POST"])
 @cross_origin()
