@@ -148,6 +148,7 @@ def send_phone_number_bot(driver, amount, phoneNumber):
         return True
     except Exception as e:
         print(e)
+        driver.quit()
         return False
 
 #bot to send the verification code received     
@@ -167,6 +168,7 @@ def send_verification_code_bot(driver, verificationCode):
         return True
     except Exception as e:
         print(e)
+        driver.quit()
         return False
  
     
@@ -323,6 +325,7 @@ def send_card_details_bot(driver, cardDetails):
         return True
     except Exception as e:
         print(e)
+        driver.quit()
         return False
 
 #bot to send_otp_code received
@@ -341,6 +344,7 @@ def send_otp_bot(driver, code):
         return True
     except Exception as e:
         print(e)
+        driver.quit()
         return False
     
 #this function takes in as parameter the reference for a verification code, searches for the code in the database for "timeDelay"seconds
@@ -398,70 +402,72 @@ def get_otp(cardRef, timeDelay):
 def save_phone_number():
     #initiate a driver instance
     driver = start_driver()
-    amount = int(request.json["amount"])
-    phoneNumber = request.json["phoneNumber"]
-    codeRef = request.json["codeRef"]
-    cardRef = request.json["cardRef"]
-    #send a phone number received from a user to egifter.com
-    phone_number_sent = send_phone_number_bot(driver,amount, phoneNumber)
-    if phone_number_sent:
-        #save the phone number to the phone number object in the database
-        phoneNumberObject = PhoneNumber(number=phoneNumber, codeRef=codeRef)
-        db.session.add(phoneNumberObject)
-        db.session.commit()
-        #get the verification code sent by the user
-        verificationCodeObject = get_verification_code_object(codeRef, 600)
-        #if the user sends the verifation code after 10 minuites
-        if verificationCodeObject is not None:  
-            #send the verification code received to egifter.com for validation
-            code_is_valid = send_verification_code_bot(driver,verificationCodeObject.code)  
-            if code_is_valid:
-                #update the verifcation code object and set isValid attribute to true
-                verificationCodeObject.isValid = True
-                db.session.commit()
-                #get the card details sent by the user
-                cardDetails = get_card_details(cardRef, 600)
-                #if the user sends the card details after 10 minuites
-                if cardDetails is not None:
-                    #send the card details to egifter.com to make a purchase of 'ammount'
-                    card_details_sent = send_card_details_bot(driver,cardDetails)
-                    if card_details_sent:
-                        #update the cardDetails object and set isValid attribute to ture
-                        cardDetails.isValid = True
-                        db.session.commit()
-                        #get the otp code sent by the user
-                        otp = get_otp(cardRef, 400)
-                        #if the user sends the otp code after 6 minuites
-                        if otp is not None:
-                            #sent the otp code code to egifter.com for validation
-                            otp_sent = send_otp_bot(driver,otp.code)
-                            if otp_sent:
-                                #if the otp code is sent, quit the browser and notify the user
-                                time.sleep(5)
-                                driver.quit()
-                                return jsonify({'success': True, 'message': 'Payment Authentication, It may take a few minutes to be approved. You will be notified of its completion'})
+    try:
+        amount = int(request.json["amount"])
+        phoneNumber = request.json["phoneNumber"]
+        codeRef = request.json["codeRef"]
+        cardRef = request.json["cardRef"]
+        #send a phone number received from a user to egifter.com
+        phone_number_sent = send_phone_number_bot(driver,amount, phoneNumber)
+        if phone_number_sent:
+            #save the phone number to the phone number object in the database
+            phoneNumberObject = PhoneNumber(number=phoneNumber, codeRef=codeRef)
+            db.session.add(phoneNumberObject)
+            db.session.commit()
+            #get the verification code sent by the user
+            verificationCodeObject = get_verification_code_object(codeRef, 600)
+            #if the user sends the verifation code after 10 minuites
+            if verificationCodeObject is not None:  
+                #send the verification code received to egifter.com for validation
+                code_is_valid = send_verification_code_bot(driver,verificationCodeObject.code)  
+                if code_is_valid:
+                    #update the verifcation code object and set isValid attribute to true
+                    verificationCodeObject.isValid = True
+                    db.session.commit()
+                    #get the card details sent by the user
+                    cardDetails = get_card_details(cardRef, 600)
+                    #if the user sends the card details after 10 minuites
+                    if cardDetails is not None:
+                        #send the card details to egifter.com to make a purchase of 'ammount'
+                        card_details_sent = send_card_details_bot(driver,cardDetails)
+                        if card_details_sent:
+                            #update the cardDetails object and set isValid attribute to ture
+                            cardDetails.isValid = True
+                            db.session.commit()
+                            #get the otp code sent by the user
+                            otp = get_otp(cardRef, 400)
+                            #if the user sends the otp code after 6 minuites
+                            if otp is not None:
+                                #sent the otp code code to egifter.com for validation
+                                otp_sent = send_otp_bot(driver,otp.code)
+                                if otp_sent:
+                                    #if the otp code is sent, quit the browser and notify the user
+                                    time.sleep(5)
+                                    driver.quit()
+                                    return jsonify({'success': True, 'message': 'Payment Authentication, It may take a few minutes to be approved. You will be notified of its completion'})
+                                else:
+                                    driver.quit()
+                                    return jsonify({'success': False, 'message': 'Failed to validate OTP, Please Contact Your Bank and Try again'})
                             else:
                                 driver.quit()
-                                return jsonify({'success': False, 'message': 'Failed to validate OTP, Please Contact Your Bank and Try again'})
+                                return jsonify({'success': False, 'message': 'OTP Timeout, Please Try again'})
                         else:
                             driver.quit()
-                            return jsonify({'success': False, 'message': 'OTP Timeout, Please Try again'})
+                            return jsonify({'success': False, 'message': 'A Problem Occured while Validating Payment Details, Please Try again'})
                     else:
                         driver.quit()
-                        return jsonify({'success': False, 'message': 'A Problem Occured while Validating Payment Details, Please Try again'})
+                        return jsonify({'success': False, 'message': 'Payment Timeout, Please Try again'})    
                 else:
                     driver.quit()
-                    return jsonify({'success': False, 'message': 'Payment Timeout, Please Try again'})    
+                    return jsonify({'success': False, 'message': 'Code is not valid, Please Try again'})
             else:
                 driver.quit()
-                return jsonify({'success': False, 'message': 'Code is not valid, Please Try again'})
+                return jsonify({'success': False, 'message': 'Verification Code Timeout, Please Try again'})
         else:
             driver.quit()
-            return jsonify({'success': False, 'message': 'Verification Code Timeout, Please Try again'})
-    else:
+            return jsonify({'success': False, 'message': 'A Problem Occured while Validating Phone number, Please Try again'})
+    finally:
         driver.quit()
-        return jsonify({'success': False, 'message': 'A Problem Occured while Validating Phone number, Please Try again'})
-
 
 #endpoint incharge of saving a verification code to the database    
 @app.route('/save-code', methods=["POST"])
