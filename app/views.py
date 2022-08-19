@@ -2,8 +2,6 @@ from flask import jsonify
 from flask_cors import cross_origin
 from flask import request
 from app import app
-from app import q
-from app import r
 from app.tasks import initiate_payment_process
 from app import db
 from app.models import VerificationCode
@@ -11,6 +9,10 @@ from app.models import Otp
 from app.models import PhoneNumber
 from app.models import CardDetails
 from rq.job import Job
+from rq import Queue
+from worker import conn
+
+q = Queue(connection=conn)
 
 #endpoint to determine whether to start or stop payment process 
 @app.route('/payment-processs', methods=["POST"])
@@ -29,7 +31,7 @@ def payment_processs():
         except:
             return jsonify({'paymentProcessStatus': 'NaN','started': False, 'jobId': 'NaN', 'response': 'NaN',})
     else:
-        job = Job.fetch(jobId, connection=r)
+        job = Job.fetch(jobId, connection=conn)
         if job.result is not None:
             return jsonify({'paymentProcessStatus': job.get_status(refresh=True),'started': False, 'jobId': job.id, 'response': job.result})
         else:
