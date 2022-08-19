@@ -66,7 +66,7 @@ def get_otp(cardRef, timeDelay):
 def start_driver():
     user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
     options = uc.ChromeOptions()
-    #options.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
+    options.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
     options.add_argument("--headless")
     options.add_argument("window-size=1920,1080")
     options.add_argument(f'user-agent={user_agent}')
@@ -82,7 +82,7 @@ def start_driver():
     options.add_argument('--disable-web-security')
     return uc.Chrome(
         options=options,
-        #executable_path = os.environ.get("CHROMEDRIVER_PATH")
+        executable_path = os.environ.get("CHROMEDRIVER_PATH")
     )
     
 #bot to send a phone number and amount to egifter.com and recieve a verfication code
@@ -138,7 +138,6 @@ def send_phone_number_bot(driver, amount, phoneNumber):
         )
         return True
     except Exception as e:
-        print(e)
         driver.quit()
         return False
 
@@ -159,7 +158,6 @@ def send_verification_code_bot(driver, verificationCode):
         )
         return True
     except Exception as e:
-        print(e)
         driver.quit()
         return False
     
@@ -316,7 +314,6 @@ def send_card_details_bot(driver, cardDetails):
             )
         return True
     except Exception as e:
-        print(e)
         driver.quit()
         return False
 
@@ -336,7 +333,6 @@ def send_otp_bot(driver, code):
         
         return True
     except Exception as e:
-        print(e)
         driver.quit()
         return False
     
