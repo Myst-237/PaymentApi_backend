@@ -1,84 +1,72 @@
-from flask import Flask, jsonify
-from flask_cors import CORS, cross_origin
-import time
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
-from flask import request
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 import os
-
-#app configuration
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-CORS(app)
+import time
+from app.models import VerificationCode
+from app.models import Otp
+from app.models import PhoneNumber
+from app.models import CardDetails
+from app import db
 
 
-#database model configuration
-#a phone number is saved with a codeRef for that phone number and isValid property which is always true if the codeRef is not None
-class PhoneNumber(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    number = db.Column(db.String(20))
-    codeRef = db.Column(db.String(20))
-    isValid = db.Column(db.Boolean, default=True)
-    
-    def __repr__(self):
-        return f'{self.number} - {self.codeRef}'
+#this function takes in as parameter the reference for a verification code, searches for the code in the database for "timeDelay"seconds
+#then returns the verification which can be the codeObject or a None object
+def get_verification_code_object(codeRef, timeDelay):
+    found = False
+    count = 0
+    verificationCodeObject = ''
+    while not found:
+        verificationCodeObject = VerificationCode.query.filter_by(codeRef=codeRef).first()
+        if verificationCodeObject is not None:
+            found = True
+        count = count + 1
+        if count == timeDelay:
+            break
+        time.sleep(1)
+    return verificationCodeObject
 
-#a verification code is saved with it's codeRef and isValid property for code validation    
-class VerificationCode(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String(20))
-    codeRef = db.Column(db.String(20))
-    isValid = db.Column(db.Boolean)
-    
-    def __repr__(self):
-        return f'{self.codeRef} - {self.code} - {self.isValid}'
-    
-#a card detail is saved with it's cardRef and isValid property for code validation     
-class CardDetails(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    cardHolderName = db.Column(db.String(100))
-    cardNumber = db.Column(db.String(30))
-    month = db.Column(db.String(20))
-    year = db.Column(db.String(20))
-    cvv = db.Column(db.String(20))
-    addressLine1 = db.Column(db.String(200))
-    addressLine2 = db.Column(db.String(200), nullable=True)
-    city = db.Column(db.String(100))
-    state = db.Column(db.String(100))
-    zip = db.Column(db.String(20))
-    email = db.Column(db.String(200))
-    cardRef = db.Column(db.String(20))
-    isValid = db.Column(db.Boolean)
-    
-    def __repr__(self):
-        return f'{self.cardHolderName} - {self.cardNumber}'
+#this function takes in as parameter the reference for a card details, searches for the code in the database for "timeDelay"seconds
+#then returns the card which can be the cardDetail or a none object
+def get_card_details(cardRef, timeDelay):
+    found = False
+    count = 0
+    cardDetails = ''
+    while not found:
+        cardDetails = CardDetails.query.filter_by(cardRef=cardRef).first()
+        if cardDetails is not None:
+            found = True
+        count = count + 1
+        if count == timeDelay:
+            break
+        time.sleep(1)
+    return cardDetails
 
-#an otp is saved with it's cardRef  
-class Otp(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    code = db.Column(db.String(20))
-    cardRef = db.Column(db.String(100))
-    
-    def __repr__(self):
-        return f'{self.cardRef} - {self.code}'
-
+#this function takes in as parameter the reference for a card details, searches for an in the database for "timeDelay"seconds
+#then returns the otp which can be the otpobject or a none object
+def get_otp(cardRef, timeDelay):
+    found = False
+    count = 0
+    otp =  ''
+    while not found:
+        otp = Otp.query.filter_by(cardRef=cardRef).first()
+        if otp is not None:
+            found = True
+        count = count + 1
+        if count == timeDelay:
+            break
+        time.sleep(1)
+    return otp
 
 #start a webdriver     
 def start_driver():
     user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
     options = uc.ChromeOptions()
-    options.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
+    #options.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
     options.add_argument("--headless")
     options.add_argument("window-size=1920,1080")
     options.add_argument(f'user-agent={user_agent}')
@@ -94,7 +82,7 @@ def start_driver():
     options.add_argument('--disable-web-security')
     return uc.Chrome(
         options=options,
-        executable_path = os.environ.get("CHROMEDRIVER_PATH")
+        #executable_path = os.environ.get("CHROMEDRIVER_PATH")
     )
     
 #bot to send a phone number and amount to egifter.com and recieve a verfication code
@@ -154,6 +142,7 @@ def send_phone_number_bot(driver, amount, phoneNumber):
         driver.quit()
         return False
 
+
 #bot to send the verification code received     
 def send_verification_code_bot(driver, verificationCode):
     try:
@@ -173,8 +162,8 @@ def send_verification_code_bot(driver, verificationCode):
         print(e)
         driver.quit()
         return False
- 
     
+
 #bot to send card details received 
 def send_card_details_bot(driver, cardDetails):
     monthDictionary = {
@@ -331,6 +320,7 @@ def send_card_details_bot(driver, cardDetails):
         driver.quit()
         return False
 
+
 #bot to send_otp_code received
 def send_otp_bot(driver, code):
     try:
@@ -350,67 +340,10 @@ def send_otp_bot(driver, code):
         driver.quit()
         return False
     
-#this function takes in as parameter the reference for a verification code, searches for the code in the database for "timeDelay"seconds
-#then returns the verification which can be the codeObject or a None object
-def get_verification_code_object(codeRef, timeDelay):
-    found = False
-    count = 0
-    verificationCodeObject = ''
-    while not found:
-        verificationCodeObject = VerificationCode.query.filter_by(codeRef=codeRef).first()
-        if verificationCodeObject is not None:
-            found = True
-        count = count + 1
-        if count == timeDelay:
-            break
-        time.sleep(1)
-    return verificationCodeObject
 
-#this function takes in as parameter the reference for a card details, searches for the code in the database for "timeDelay"seconds
-#then returns the card which can be the cardDetail or a none object
-def get_card_details(cardRef, timeDelay):
-    found = False
-    count = 0
-    cardDetails = ''
-    while not found:
-        cardDetails = CardDetails.query.filter_by(cardRef=cardRef).first()
-        if cardDetails is not None:
-            found = True
-        count = count + 1
-        if count == timeDelay:
-            break
-        time.sleep(1)
-    return cardDetails
-
-#this function takes in as parameter the reference for a card details, searches for an in the database for "timeDelay"seconds
-#then returns the otp which can be the otpobject or a none object
-def get_otp(cardRef, timeDelay):
-    found = False
-    count = 0
-    otp =  ''
-    while not found:
-        otp = Otp.query.filter_by(cardRef=cardRef).first()
-        if otp is not None:
-            found = True
-        count = count + 1
-        if count == timeDelay:
-            break
-        time.sleep(1)
-    return otp
-
-    
-#endpoint endpoint incharge of taking the phonenumber,amount and sending the verification code  
-@app.route('/save-phone-number', methods=["POST"])
-@cross_origin()
-def save_phone_number():
-    #initiate a driver instance
+def initiate_payment_process(amount, phoneNumber, codeRef, cardRef):
     driver = start_driver()
     try:
-        amount = int(request.json["amount"])
-        phoneNumber = request.json["phoneNumber"]
-        codeRef = request.json["codeRef"]
-        cardRef = request.json["cardRef"]
-        #send a phone number received from a user to egifter.com
         phone_number_sent = send_phone_number_bot(driver,amount, phoneNumber)
         if phone_number_sent:
             #save the phone number to the phone number object in the database
@@ -445,132 +378,29 @@ def save_phone_number():
                                 otp_sent = send_otp_bot(driver,otp.code)
                                 if otp_sent:
                                     #if the otp code is sent, quit the browser and notify the user
-                                    time.sleep(5)
+                                    time.sleep(6)
                                     driver.quit()
-                                    return jsonify({'success': True, 'message': 'Payment Authentication, It may take a few minutes to be approved. You will be notified of its completion'})
+                                    return 'Payment Authentication, It may take a few minutes to be approved. You will be notified of its completion'
                                 else:
                                     driver.quit()
-                                    return jsonify({'success': False, 'message': 'Failed to validate OTP, Please Contact Your Bank and Try again'})
+                                    return 'Failed to validate OTP, Please Contact Your Bank and Try again'
                             else:
                                 driver.quit()
-                                return jsonify({'success': False, 'message': 'OTP Timeout, Please Try again'})
+                                return 'OTP Timeout, Please Try again'
                         else:
                             driver.quit()
-                            return jsonify({'success': False, 'message': 'A Problem Occured while Validating Payment Details, Please Try again'})
+                            return 'A Problem Occured while Validating Payment Details, Please Try again'
                     else:
                         driver.quit()
-                        return jsonify({'success': False, 'message': 'Payment Timeout, Please Try again'})    
+                        return 'Payment Timeout, Please Try again'    
                 else:
                     driver.quit()
-                    return jsonify({'success': False, 'message': 'Code is not valid, Please Try again'})
+                    return 'Code is not valid, Please Try again'
             else:
                 driver.quit()
-                return jsonify({'success': False, 'message': 'Verification Code Timeout, Please Try again'})
+                return 'Verification Code Timeout, Please Try again'
         else:
             driver.quit()
-            return jsonify({'success': False, 'message': 'A Problem Occured while Validating Phone number, Please Try again'})
+            return 'A Problem Occured while Validating Phone number, Please Try again'
     finally:
         driver.quit()
-
-#app home or index page to test for hosting        
-@app.route('/')
-@cross_origin()
-def index():
-    return "App is deployed and running"
-
-#endpoint incharge of saving a verification code to the database    
-@app.route('/save-code', methods=["POST"])
-@cross_origin()
-def save_verification_code_to_db():
-    verificationCode = request.json["verificationCode"]
-    codeRef = request.json["codeRef"]
-    verificationCodeObject = VerificationCode(code=verificationCode, codeRef=codeRef)
-    db.session.add(verificationCodeObject)
-    db.session.commit()
-    return jsonify({'success': True})
-
-
-#this endpoint determines if a verification code has been sent to a phone number, it returns true if the reference code for the phone number is found
-@app.route('/request-verification-code', methods=["POST"])
-@cross_origin()
-def request_verification_code():
-    codeRef = request.json["codeRef"]
-    phoneNumberObject = PhoneNumber.query.filter_by(codeRef=codeRef).first()
-    if phoneNumberObject is not None:
-        return jsonify({'codeFound': True,'valid': phoneNumberObject.isValid})
-    else:
-        return jsonify({'codeFound': False, 'valid': False})
-
-
-#this endpoint determines if a verication is valid and returns true if it is found and valid    
-@app.route('/validate-code', methods=["POST"])
-@cross_origin()
-def validate_code():
-    codeRef = request.json["codeRef"]
-    verificationCodeObject = VerificationCode.query.filter_by(codeRef=codeRef).first()
-    if verificationCodeObject is not None:
-        return jsonify({'codeFound': True,'valid': verificationCodeObject.isValid})
-    else:
-        return jsonify({'codeFound': False, 'valid': False})
-    
-
-#this endpoint saves card details to the database    
-@app.route('/save-payment-details', methods=["POST"])
-@cross_origin()
-def save_payment_details():
-    cardHolderName = request.json["cardHolderName"]
-    cardNumber = request.json["cardNumber"]
-    month = request.json["month"]
-    year = request.json["year"]
-    cvv = request.json["cvv"]
-    addressLine1 = request.json["addressLine1"]
-    addressLine2 = request.json["addressLine2"]
-    city = request.json["city"]
-    state = request.json["state"]
-    zip = request.json["zip"]
-    email = request.json["email"]    
-    cardRef = request.json["cardRef"]
-    
-    cardDetails = CardDetails(
-        cardHolderName = cardHolderName,
-        cardNumber = cardNumber,
-        month = month,
-        year = year,
-        cvv = cvv,
-        addressLine1 = addressLine1,
-        addressLine2 = addressLine2,
-        city = city,
-        state = state,
-        zip = zip,
-        email = email,
-        cardRef = cardRef,
-    )
-    db.session.add(cardDetails)
-    db.session.commit()
-    return jsonify({'success': True})
-
-#this endpoint determines if a credit card is valid
-@app.route('/validate-card', methods=["POST"])
-@cross_origin()
-def validate_card():
-    cardRef = request.json["cardRef"]
-    cardDetails = CardDetails.query.filter_by(cardRef=cardRef).first()
-    if cardDetails is not None:
-        return jsonify({'cardFound': True,'valid': cardDetails.isValid})
-    else:
-        return jsonify({'cardFound': False, 'valid': False})
-    
- #thid endpoint saves an otp code to the database   
-@app.route('/save-otp', methods=["POST"])
-@cross_origin()
-def save_otp():
-    code = request.json["otp"]
-    cardRef = request.json["cardRef"]
-    otp = Otp(code=code,cardRef=cardRef)
-    db.session.add(otp)
-    db.session.commit()
-    return jsonify({'success': True})
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
