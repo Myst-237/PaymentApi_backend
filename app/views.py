@@ -31,11 +31,14 @@ def payment_processs():
         except:
             return jsonify({'paymentProcessStatus': 'NaN','started': False, 'jobId': 'NaN', 'response': 'NaN',})
     else:
-        job = Job.fetch(jobId, connection=conn)
-        if job.result is not None:
-            return jsonify({'paymentProcessStatus': job.get_status(),'started': False, 'jobId': job.id, 'response': job.result})
-        else:
-            return jsonify({'paymentProcessStatus': job.get_status(),'started': False, 'jobId': job.id, 'response': 'NaN'})
+        try:
+            runningJob = Job.fetch(jobId, connection=conn)
+            if runningJob.result is not None:
+                return jsonify({'paymentProcessStatus': runningJob.get_status(),'started': False, 'jobId': runningJob.id, 'response': runningJob.result})
+            else:
+                return jsonify({'paymentProcessStatus': runningJob.get_status(),'started': False, 'jobId': runningJob.id, 'response': 'Result is None'})
+        except:
+            return jsonify({'paymentProcessStatus': 'nojob','started': False, 'jobId': runningJob.id, 'response': 'Failed to fetch Job'})
         
     
     
