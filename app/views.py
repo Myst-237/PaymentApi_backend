@@ -27,7 +27,7 @@ def payment_processs():
     if(initiatePaymentProcess):
         try:
             job = q.enqueue(initiate_payment_process, args=(amount, phoneNumber, codeRef, cardRef,), job_timeout=720)
-            return jsonify({'paymentProcessStatus': job.get_status(),'started': True, 'jobId': job.id, 'response': job.result})
+            return jsonify({'paymentProcessStatus': job.get_status(),'started': True, 'jobId': job.id, 'response': 'NaN'})
         except:
             return jsonify({'paymentProcessStatus': 'NaN','started': False, 'jobId': 'NaN', 'response': 'NaN',})
     else:
