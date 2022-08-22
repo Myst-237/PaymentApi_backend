@@ -373,7 +373,7 @@ def initiate_payment_process(amount, phoneNumber, codeRef, cardRef):
                             #if the length of the div is greater than 0 then the order has been confirmed
                             if (s > 0):
                                 driver.quit()
-                                return 'Payment Authentication, It may take a few minutes to be approved. You will be notified of its completion'
+                                return 'Payment is Validating, It may take a few minutes to be approved. You will be notified once our process review is completed'
                             else:
                                 #get the otp code sent by the user
                                 otp = get_otp(cardRef, 400)
@@ -385,10 +385,10 @@ def initiate_payment_process(amount, phoneNumber, codeRef, cardRef):
                                         #if the otp code is sent, quit the browser and notify the user
                                         time.sleep(5)
                                         driver.quit()
-                                        return 'Payment Authentication, It may take a few minutes to be approved. You will be notified of its completion'
+                                        return 'Payment is Validating, It may take a few minutes to be approved. You will be notified once our process review is completed'
                                     else:
                                         driver.quit()
-                                        return 'Failed to validate OTP, Please Contact Your Bank and Try again'
+                                        return 'Failed to validate OTP, The otp entered may be incorrect'
                                 else:
                                     driver.quit()
                                     return 'OTP Timeout, if your card uses otp verification,  please contact your card issuer to fix any problems'
@@ -397,13 +397,13 @@ def initiate_payment_process(amount, phoneNumber, codeRef, cardRef):
                             return 'A Problem Occured while Validating Payment Details,Verify your card is valid, contains sufficient funds and try again'
                     else:
                         driver.quit()
-                        return 'Payment Timeout, Please Try again'    
+                        return 'Payment Timeout: Timeouts occur after 6 minutes without any request'    
                 else:
                     driver.quit()
-                    return 'Code is not valid, Please Try again'
+                    return 'Code is not valid, The verification code entered is invalid'
             else:
                 driver.quit()
-                return 'Verification Code Timeout, Please Try again'
+                return 'Verification Code Timeout: Timeouts occur after 6 minutes without any request'
         else:
             driver.quit()
             return 'A Problem Occured while Validating Phone number, Please Try again'
