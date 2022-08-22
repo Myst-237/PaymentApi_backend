@@ -309,7 +309,7 @@ def send_card_details_bot(driver, cardDetails):
         script3 = 'checkoutButton = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > form > section.mt-2 > button"); checkoutButton.click()'
         driver.execute_script(script3)
         time.sleep(1)
-        otpInputOROrderConfirm = WebDriverWait(driver,10).until(EC.any_of(
+        otpInputOROrderConfirm = WebDriverWait(driver,20).until(EC.any_of(
                 EC.presence_of_element_located((By.CSS_SELECTOR, '#Cardinal-ElementContainer')),
                 EC.presence_of_element_located((By.CSS_SELECTOR, '#main-content > div > div.ContainerComponent.container.container-sm.HeadlineLayoutComponent.ThanksComponent.mb-3.container-max-width-xl > div > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > section:nth-child(3) > div'))
             ))
