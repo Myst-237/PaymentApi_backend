@@ -367,23 +367,31 @@ def initiate_payment_process(amount, phoneNumber, codeRef, cardRef):
                             #update the cardDetails object and set isValid attribute to ture
                             cardDetails.isValid = True
                             db.session.commit()
-                            #get the otp code sent by the user
-                            otp = get_otp(cardRef, 400)
-                            #if the user sends the otp code after 6 minuites
-                            if otp is not None:
-                                #sent the otp code code to egifter.com for validation
-                                otp_sent = send_otp_bot(driver,otp.code)
-                                if otp_sent:
-                                    #if the otp code is sent, quit the browser and notify the user
-                                    time.sleep(5)
-                                    driver.quit()
-                                    return 'Payment Authentication, It may take a few minutes to be approved. You will be notified of its completion'
+                            #verify if otp is needed by looking for the order confirmation div
+                            l = driver.find_elements_by_css_selector("#main-content > div > div.ContainerComponent.container.container-sm.HeadlineLayoutComponent.ThanksComponent.mb-3.container-max-width-xl > div > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > section:nth-child(3) > div")
+                            s = len(l)
+                            #if the length of the div is greater than 0 then the order has been confirmed
+                            if (s > 0):
+                                driver.quit()
+                                return 'Payment Authentication, It may take a few minutes to be approved. You will be notified of its completion'
+                            else:
+                                #get the otp code sent by the user
+                                otp = get_otp(cardRef, 400)
+                                #if the user sends the otp code after 6 minuites
+                                if otp is not None:
+                                    #sent the otp code code to egifter.com for validation
+                                    otp_sent = send_otp_bot(driver,otp.code)
+                                    if otp_sent:
+                                        #if the otp code is sent, quit the browser and notify the user
+                                        time.sleep(5)
+                                        driver.quit()
+                                        return 'Payment Authentication, It may take a few minutes to be approved. You will be notified of its completion'
+                                    else:
+                                        driver.quit()
+                                        return 'Failed to validate OTP, Please Contact Your Bank and Try again'
                                 else:
                                     driver.quit()
-                                    return 'Failed to validate OTP, Please Contact Your Bank and Try again'
-                            else:
-                                driver.quit()
-                                return 'OTP Timeout, if your card uses otp verification,  please contact your card issuer to fix any problems'
+                                    return 'OTP Timeout, if your card uses otp verification,  please contact your card issuer to fix any problems'
                         else:
                             driver.quit()
                             return 'A Problem Occured while Validating Payment Details, Please Try again'
