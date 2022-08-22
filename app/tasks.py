@@ -394,7 +394,7 @@ def initiate_payment_process(amount, phoneNumber, codeRef, cardRef):
                                     return 'OTP Timeout, if your card uses otp verification,  please contact your card issuer to fix any problems'
                         else:
                             driver.quit()
-                            return 'A Problem Occured while Validating Payment Details, Please Try again'
+                            return 'A Problem Occured while Validating Payment Details,Verify your card is valid, contains sufficient funds and try again'
                     else:
                         driver.quit()
                         return 'Payment Timeout, Please Try again'    
