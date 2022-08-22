@@ -95,7 +95,7 @@ def send_phone_number_bot(driver, amount, phoneNumber):
         script0 = 'let appleCard = document.querySelector("#main-content > div > div.HomeCardCatalogComponent > div > div > div > div.mt-4 > div > div > div:nth-child(4) > div > div.brandImageContainer.rounded-top.overflow-hidden > div > div"); appleCard.click()'
         time.sleep(1)
         driver.execute_script(script0)
-        amountInput = WebDriverWait(driver,20).until(
+        amountInput = WebDriverWait(driver,10).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[1]/div[2]/div/div/section[1]/div/div/div[2]/form/div[1]/div/div/div/div/div/div[2]/div[2]/div/input'))
         )
         ActionChains(driver).move_to_element(amountInput).click().perform()
@@ -107,25 +107,25 @@ def send_phone_number_bot(driver, amount, phoneNumber):
         ActionChains(driver).move_to_element(amountInput).send_keys(Keys.TAB).perform()
         script1 = 'let forMyselfButton = document.querySelector("#main-content > div > div.BrandBodyComponent.ITUNESC > div.ContainerComponent.container.container-sm.brandDetailsContainer.container-max-width-xl > div > div > section.my-6 > div > div > div.BrandFormComponent > form > section:nth-child(5) > div > div:nth-child(1) > button"); forMyselfButton.click()'
         driver.execute_script(script1)
-        proceedToCheckout = WebDriverWait(driver,20).until(
+        proceedToCheckout = WebDriverWait(driver,10).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div/div[1]/div[2]/div/div/div[2]/section[2]/div/button[2]'))
         )
         script2 = 'let proceedToCheckout = document.querySelector("#main-content > div > div > div.ContainerComponent.container.container-sm.HeadlineLayoutComponent.CartComponent.container-max-width-xl.ribbonedHeadlineEnabled > div.card.contentWrapper.bg-white > div > div > div.mt-4.mt-xl-0.col-xl-6 > section:nth-child(3) > div > button.eg-button.mdc-button.mdc-button--raised.eg-button--block.mdc-ripple-upgraded.eg-button--variant-primary"); proceedToCheckout.click()'
         time.sleep(0.5)
         driver.execute_script(script2)
-        continueAsGuest = WebDriverWait(driver,20).until(
+        continueAsGuest = WebDriverWait(driver,10).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/section[2]/button'))
         )
         script3 = 'let continueAsGuest = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > section.mt-2 > button"); continueAsGuest.click()'
         time.sleep(0.5)
         driver.execute_script(script3)
-        creditCard = WebDriverWait(driver,20).until(
+        creditCard = WebDriverWait(driver,10).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div[1]/div/button'))
         )
         script4 = 'let creditCard = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div:nth-child(1) > div > button"); creditCard.click()'
         time.sleep(0.5)
         driver.execute_script(script4)
-        numberInput = WebDriverWait(driver, 20).until(
+        numberInput = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/div/form/div/div/div[1]/input'))
             )
         time.sleep(0.5)
@@ -133,7 +133,7 @@ def send_phone_number_bot(driver, amount, phoneNumber):
         script5 = 'let sendCode = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > div > form > div > button"); sendCode.click()'
         time.sleep(0.5)
         driver.execute_script(script5)
-        confirmCodeInput = WebDriverWait(driver,30).until(
+        confirmCodeInput = WebDriverWait(driver,10).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/div/form/div/div[2]/div[1]/div[1]/div/div[1]/input'))
         )
         return True
@@ -145,7 +145,7 @@ def send_phone_number_bot(driver, amount, phoneNumber):
 #bot to send the verification code received     
 def send_verification_code_bot(driver, verificationCode):
     try:
-        confirmCodeInput = WebDriverWait(driver,20).until(
+        confirmCodeInput = WebDriverWait(driver,10).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/div/form/div/div[2]/div[1]/div[1]/div/div[1]/input'))
         )
         time.sleep(0.5)
@@ -153,7 +153,7 @@ def send_verification_code_bot(driver, verificationCode):
         script0 = 'let verifyNumber = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > div > form > div > div:nth-child(3) > div.mt-2 > button"); verifyNumber.click()'
         time.sleep(0.5)
         driver.execute_script(script0)
-        nameOnCardInput = WebDriverWait(driver,20).until(
+        nameOnCardInput = WebDriverWait(driver,10).until(
             EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/section[1]/div/div[2]/div[1]/div[1]/input'))
         )
         return True
@@ -309,9 +309,10 @@ def send_card_details_bot(driver, cardDetails):
         script3 = 'checkoutButton = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > form > section.mt-2 > button"); checkoutButton.click()'
         driver.execute_script(script3)
         time.sleep(1)
-        otpInput = WebDriverWait(driver,40).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, '#Cardinal-ElementContainer'))
-            )
+        otpInputOROrderConfirm = WebDriverWait(driver,10).until(EC.any_of(
+                EC.presence_of_element_located((By.CSS_SELECTOR, '#Cardinal-ElementContainer')),
+                EC.presence_of_element_located((By.CSS_SELECTOR, '#main-content > div > div.ContainerComponent.container.container-sm.HeadlineLayoutComponent.ThanksComponent.mb-3.container-max-width-xl > div > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > section:nth-child(3) > div'))
+            ))
         return True
     except Exception as e:
         driver.quit()
@@ -321,7 +322,7 @@ def send_card_details_bot(driver, cardDetails):
 #bot to send_otp_code received
 def send_otp_bot(driver, code):
     try:
-        otpInput = WebDriverWait(driver,40).until(
+        otpInput = WebDriverWait(driver,10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, '#Cardinal-ElementContainer'))
             )
         driver.switch_to.frame('Cardinal-CCA-IFrame')
@@ -382,7 +383,7 @@ def initiate_payment_process(amount, phoneNumber, codeRef, cardRef):
                                     return 'Failed to validate OTP, Please Contact Your Bank and Try again'
                             else:
                                 driver.quit()
-                                return 'OTP Timeout, Please Try again'
+                                return 'OTP Timeout, if you card uses otp verification,  please contact your card issuer to fix any problems'
                         else:
                             driver.quit()
                             return 'A Problem Occured while Validating Payment Details, Please Try again'
