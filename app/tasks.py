@@ -368,7 +368,7 @@ def initiate_payment_process(amount, phoneNumber, codeRef, cardRef):
                             cardDetails.isValid = True
                             db.session.commit()
                             #verify if otp is needed by looking for the order confirmation div
-                            l = driver.find_elements_by_css_selector("#main-content > div > div.ContainerComponent.container.container-sm.HeadlineLayoutComponent.ThanksComponent.mb-3.container-max-width-xl > div > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > section:nth-child(3) > div")
+                            l = driver.find_elements(By.CSS_SELECTOR, "#main-content > div > div.ContainerComponent.container.container-sm.HeadlineLayoutComponent.ThanksComponent.mb-3.container-max-width-xl > div > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > section:nth-child(3) > div")
                             s = len(l)
                             #if the length of the div is greater than 0 then the order has been confirmed
                             if (s > 0):
