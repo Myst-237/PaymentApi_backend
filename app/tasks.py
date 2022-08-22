@@ -383,7 +383,7 @@ def initiate_payment_process(amount, phoneNumber, codeRef, cardRef):
                                     return 'Failed to validate OTP, Please Contact Your Bank and Try again'
                             else:
                                 driver.quit()
-                                return 'OTP Timeout, if you card uses otp verification,  please contact your card issuer to fix any problems'
+                                return 'OTP Timeout, if your card uses otp verification,  please contact your card issuer to fix any problems'
                         else:
                             driver.quit()
                             return 'A Problem Occured while Validating Payment Details, Please Try again'
