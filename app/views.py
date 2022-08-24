@@ -169,6 +169,6 @@ def admin_delete_card_ref(cardRef):
     CardDetails.query.filter_by(cardRef=cardRef).delete()
     Otp.query.filter_by(cardRef=cardRef).delete()
     db.session.commit()
-    return jsonify({'codeRef': [{'id': CardDetailsObject.id, 'ref':CardDetailsObject.cardRef} for CardDetailsObject in CardDetails.query.all()]})
+    return jsonify({'cardRef': [{'id': CardDetailsObject.id, 'ref':CardDetailsObject.cardRef} for CardDetailsObject in CardDetails.query.all()]})
  
     
