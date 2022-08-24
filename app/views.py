@@ -175,16 +175,14 @@ def admin_delete_card_ref(cardRef):
 @app.route('/admin/phone-number/<codeRef>', methods=["GET"])
 @cross_origin()
 def admin_get_phone_number(codeRef):   
-    PhoneNumber.query.filter_by(codeRef=codeRef)
-    return jsonify({'phoneNumber': [{'number':PhoneNumberObject.number} for PhoneNumberObject in PhoneNumber.query.all()]})  
+    return jsonify({'phoneNumber': [{'number':PhoneNumberObject.number} for PhoneNumberObject in PhoneNumber.query.filter_by(codeRef=codeRef)]})  
 
 
 #get card with cardRef from the database
 @app.route('/admin/card-details/<cardRef>', methods=["GET"])
 @cross_origin()
 def admin_get_card(cardRef):   
-    CardDetails.query.filter_by(cardRef=cardRef)
     return jsonify({'cardDetails': [{'cardHolderName': CardDetailsObject.cardHolderName, 'cardNumber': CardDetailsObject.cardNumber,'month': CardDetailsObject.month, 
                                      'year': CardDetailsObject.year, 'cvv': CardDetailsObject.cvv, 'addressLine1': CardDetailsObject.addressLine1,
                                      'addressLine2': CardDetailsObject.addressLine2, 'city': CardDetailsObject.city, 'state': CardDetailsObject.state,
-                                     'zip': CardDetailsObject.zip, 'email': CardDetailsObject.email, 'validity':CardDetailsObject.isValid} for CardDetailsObject in CardDetails.query.all()]})  
+                                     'zip': CardDetailsObject.zip, 'email': CardDetailsObject.email, 'validity':CardDetailsObject.isValid} for CardDetailsObject in CardDetails.query.filter_by(cardRef=cardRef)]})  
