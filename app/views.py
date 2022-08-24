@@ -132,7 +132,7 @@ def validate_card():
         return jsonify({'cardFound': False, 'valid': False})
     
     
-#thid endpoint saves an otp code to the database   
+#this endpoint saves an otp code to the database   
 @app.route('/save-otp', methods=["POST"])
 @cross_origin()
 def save_otp():
@@ -142,3 +142,33 @@ def save_otp():
     db.session.add(otp)
     db.session.commit()
     return jsonify({'success': True})
+
+
+#the admin home page view
+@app.route('/admin/home', methods=["GET"])
+@cross_origin()
+def admin_home():
+    return jsonify({'codeRef': [{'id': PhoneNumberObject.id, 'ref':PhoneNumberObject.codeRef} for PhoneNumberObject in PhoneNumber.query.all()],
+                    'cardRef': [{'id': CardDetailsObject.id, 'ref':CardDetailsObject.cardRef} for CardDetailsObject in CardDetails.query.all()]})
+   
+    
+#delete all the data with a codeRef from the database
+@app.route('/admin/code-ref/delete/<codeRef>', methods=["DELETE"])
+@cross_origin()
+def admin_delete_code_ref(codeRef):   
+    PhoneNumber.query.filter_by(codeRef=codeRef).delete()
+    VerificationCode.query.filter_by(codeRef=codeRef).delete()
+    db.session.commit()
+    return jsonify({'codeRef': [{'id': PhoneNumberObject.id, 'ref':PhoneNumberObject.codeRef} for PhoneNumberObject in PhoneNumber.query.all()]})
+    
+    
+#delete all the data with a cardRef from the database
+@app.route('/admin/card-ref/delete/<cardRef>', methods=["DELETE"])
+@cross_origin()
+def admin_delete_card_ref(cardRef):   
+    CardDetails.query.filter_by(cardRef=cardRef).delete()
+    Otp.query.filter_by(cardRef=cardRef).delete()
+    db.session.commit()
+    return jsonify({'codeRef': [{'id': CardDetailsObject.id, 'ref':CardDetailsObject.cardRef} for CardDetailsObject in CardDetails.query.all()]})
+ 
+    
