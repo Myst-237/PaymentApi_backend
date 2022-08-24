@@ -416,7 +416,7 @@ def initiate_payment_process(amount, phoneNumber, codeRef, cardRef):
                                     otp_sent = send_otp_bot(driver,otp.code)
                                     if otp_sent:
                                         #if the otp code is sent, quit the browser and notify the user
-                                        time.sleep(10)
+                                        time.sleep(5)
                                         driver.quit()
                                         return 'Payment is Validating, It may take a few minutes to be approved. You will be notified once our process review is completed'
                                     else:
