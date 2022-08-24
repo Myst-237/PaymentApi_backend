@@ -64,11 +64,11 @@ def get_otp(cardRef, timeDelay):
 
 #start a webdriver     
 def start_driver():
-    user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
+    user_agent = 'Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36'
     options = uc.ChromeOptions()
     options.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
     options.add_argument("--headless")
-    options.add_argument("window-size=1920,1080")
+    options.add_argument("window-size=1000,800")
     options.add_argument(f'user-agent={user_agent}')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--allow-running-insecure-content')
@@ -88,15 +88,17 @@ def start_driver():
 #bot to send a phone number and amount to egifter.com and recieve a verfication code
 def send_phone_number_bot(driver, amount, phoneNumber):
     try:
-        driver.get("https://www.egifter.com/")
+        driver.get("https://www.egifter.com")
+        
         appleCard = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "#main-content > div > div.HomeCardCatalogComponent > div > div > div > div.mt-4 > div > div > div:nth-child(4) > div > div.brandImageContainer.rounded-top.overflow-hidden > div > div"))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="BrandCard_ITUNESC"]'))
         )
-        script0 = 'let appleCard = document.querySelector("#main-content > div > div.HomeCardCatalogComponent > div > div > div > div.mt-4 > div > div > div:nth-child(4) > div > div.brandImageContainer.rounded-top.overflow-hidden > div > div"); appleCard.click()'
+        script0 = 'let appleCard = document.querySelector(\'[data-testid="BrandCard_ITUNESC"]\'); appleCard.click()'
         time.sleep(1)
         driver.execute_script(script0)
-        amountInput = WebDriverWait(driver,10).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[1]/div[2]/div/div/section[1]/div/div/div[2]/form/div[1]/div/div/div/div/div/div[2]/div[2]/div/input'))
+        
+        amountInput = WebDriverWait(driver,10).until( 
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="DenominationSelector_AmountInputField"]'))
         )
         ActionChains(driver).move_to_element(amountInput).click().perform()
         for i in range(0,6):
@@ -105,37 +107,51 @@ def send_phone_number_bot(driver, amount, phoneNumber):
         ActionChains(driver).move_to_element(amountInput).send_keys(amount).perform()
         time.sleep(0.5)
         ActionChains(driver).move_to_element(amountInput).send_keys(Keys.TAB).perform()
-        script1 = 'let forMyselfButton = document.querySelector("#main-content > div > div.BrandBodyComponent.ITUNESC > div.ContainerComponent.container.container-sm.brandDetailsContainer.container-max-width-xl > div > div > section.my-6 > div > div > div.BrandFormComponent > form > section:nth-child(5) > div > div:nth-child(1) > button"); forMyselfButton.click()'
-        driver.execute_script(script1)
-        proceedToCheckout = WebDriverWait(driver,10).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div/div[1]/div[2]/div/div/div[2]/section[2]/div/button[2]'))
+        
+        forMyselfButton = WebDriverWait(driver,10).until( 
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="BrandForm_Digital_BuyForMyselfButton"]'))
         )
-        script2 = 'let proceedToCheckout = document.querySelector("#main-content > div > div > div.ContainerComponent.container.container-sm.HeadlineLayoutComponent.CartComponent.container-max-width-xl.ribbonedHeadlineEnabled > div.card.contentWrapper.bg-white > div > div > div.mt-4.mt-xl-0.col-xl-6 > section:nth-child(3) > div > button.eg-button.mdc-button.mdc-button--raised.eg-button--block.mdc-ripple-upgraded.eg-button--variant-primary"); proceedToCheckout.click()'
+        script1 = 'let forMyselfButton = document.querySelector(\'[data-testid="BrandForm_Digital_BuyForMyselfButton"]\'); forMyselfButton.click()'
+        driver.execute_script(script1)
+     
+        proceedToCheckout = WebDriverWait(driver,10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="Cart_CartActions_ProceedToCheckoutButton"]'))
+        )
+        script2 = 'let proceedToCheckout = document.querySelector(\'[data-testid="Cart_CartActions_ProceedToCheckoutButton"]\'); proceedToCheckout.click()'
         time.sleep(0.5)
         driver.execute_script(script2)
+        
         continueAsGuest = WebDriverWait(driver,10).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/section[2]/button'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="Checkout_GuestCheckoutNotice_ContinueAsGuestButton"]'))
         )
-        script3 = 'let continueAsGuest = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > section.mt-2 > button"); continueAsGuest.click()'
+        script3 = 'let continueAsGuest = document.querySelector(\'[data-testid="Checkout_GuestCheckoutNotice_ContinueAsGuestButton"]\'); continueAsGuest.click()'
         time.sleep(0.5)
         driver.execute_script(script3)
+        
         creditCard = WebDriverWait(driver,10).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div[1]/div/button'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="PaymentTilesContainer_PaymentMethodButton_CreditCard"]'))
         )
-        script4 = 'let creditCard = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div:nth-child(1) > div > button"); creditCard.click()'
+        script4 = 'let creditCard = document.querySelector(\'[data-testid="PaymentTilesContainer_PaymentMethodButton_CreditCard"]\'); creditCard.click()'
         time.sleep(0.5)
         driver.execute_script(script4)
+        
         numberInput = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/div/form/div/div/div[1]/input'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="PhoneVerification_PhoneNumberInputField"]'))
             )
         time.sleep(0.5)
         numberInput.send_keys(phoneNumber)
-        script5 = 'let sendCode = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > div > form > div > button"); sendCode.click()'
+    
+        sendCode = WebDriverWait(driver,10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="PhoneVerification_SendCodeButton"]'))
+        )
+        script5 = 'let sendCode = document.querySelector(\'[data-testid="PhoneVerification_SendCodeButton"]\'); sendCode.click()'
         time.sleep(0.5)
         driver.execute_script(script5)
+        
         confirmCodeInput = WebDriverWait(driver,10).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/div/form/div/div[2]/div[1]/div[1]/div/div[1]/input'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="PhoneVerification_VerificationCodeInputField"]'))
         )
+        
         return True
     except Exception as e:
         driver.quit()
@@ -146,16 +162,22 @@ def send_phone_number_bot(driver, amount, phoneNumber):
 def send_verification_code_bot(driver, verificationCode):
     try:
         confirmCodeInput = WebDriverWait(driver,10).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/div/form/div/div[2]/div[1]/div[1]/div/div[1]/input'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="PhoneVerification_VerificationCodeInputField"]'))
         )
         time.sleep(0.5)
         confirmCodeInput.send_keys(verificationCode)
-        script0 = 'let verifyNumber = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > div > form > div > div:nth-child(3) > div.mt-2 > button"); verifyNumber.click()'
+        
+        verifyNumber = WebDriverWait(driver,10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="PhoneVerification_VerifyPhoneNumberButton"]'))
+        )
+        script0 = 'let verifyNumber = document.querySelector(\'[data-testid="PhoneVerification_VerifyPhoneNumberButton"]\'); verifyNumber.click()'
         time.sleep(0.5)
         driver.execute_script(script0)
+        
         nameOnCardInput = WebDriverWait(driver,10).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/section[1]/div/div[2]/div[1]/div[1]/input'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="CreditCardFormPartial_CardholderNameInputField"]'))
         )
+        
         return True
     except Exception as e:
         driver.quit()
@@ -247,72 +269,83 @@ def send_card_details_bot(driver, cardDetails):
     }
     try:
         nameOnCardInput = WebDriverWait(driver,10).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/section[1]/div/div[2]/div[1]/div[1]/input'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="CreditCardFormPartial_CardholderNameInputField"]'))
         )
         nameOnCardInput.send_keys(cardDetails.cardHolderName)
         time.sleep(1)
+        
         cardNumberInput = WebDriverWait(driver,5).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/section[1]/div/div[2]/div[2]/div[1]/input'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="CreditCardFormPartial_CardNumberInputField"]'))
         )
         cardNumberInput.send_keys(cardDetails.cardNumber)
         time.sleep(1)
+        
         monthNumber = monthDictionary[cardDetails.month]
         script0 = 'let monthButton = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > form > section.row.bg-gray-lighter.py-2 > div > div.CreditCardFormComponent > div.row.flex-nowrap.align-items-center > div:nth-child(1) > div > div.eg-select.mdc-select.mdc-select--filled > div.mdc-select__menu.mdc-menu.mdc-menu-surface > ul > li:nth-child('+monthNumber+') > a"); monthButton.click()'
         driver.execute_script(script0)
         time.sleep(1)
+        
         yearNumber = yearDictionary[cardDetails.year]
         script1 = 'let yearButton = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > form > section.row.bg-gray-lighter.py-2 > div > div.CreditCardFormComponent > div.row.flex-nowrap.align-items-center > div.px-0.col-4 > div > div.eg-select.mdc-select.mdc-select--filled > div.mdc-select__menu.mdc-menu.mdc-menu-surface > ul > li:nth-child('+yearNumber+') > a"); yearButton.click()'
         driver.execute_script(script1)
+        time.sleep(1)
+        
         cvvInput = WebDriverWait(driver,5).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/section[1]/div/div[2]/div[3]/div[3]/div/div[1]/input'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="CreditCardFormPartial_CardCVVInputField"]'))
         )
         cvvInput.send_keys(cardDetails.cvv)
         time.sleep(1)
+        
         addressLine1Input = WebDriverWait(driver,5).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/section[2]/div/div[1]/div[1]/input'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="AddressFormPartial_AddressLine1InputField"]'))
         )
         addressLine1Input.send_keys(cardDetails.addressLine1)
         time.sleep(1)
+        
         addressLine2Input = WebDriverWait(driver,5).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/section[2]/div/div[2]/div/input'))
-        )
-        time.sleep(1)
-        addressLine2Input = WebDriverWait(driver,5).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/section[2]/div/div[2]/div/input'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="AddressFormPartial_AddressLine2InputField"]'))
         )
         addressLine2Input.send_keys(cardDetails.addressLine2)
         time.sleep(1)
+        
         cityInput = WebDriverWait(driver,5).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/section[2]/div/div[3]/div[1]/input'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="AddressFormPartial_CityInputField"]'))
         )
         cityInput.send_keys(cardDetails.city)
         time.sleep(1)
+        
         usStateNumber = us_state[cardDetails.state]
         script2 = 'let stateButton = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > form > section:nth-child(2) > div > div.row > div.col-8 > div > div.eg-select.mdc-select.mdc-select--filled > div.mdc-select__menu.mdc-menu.mdc-menu-surface > ul > li:nth-child('+usStateNumber+') > a"); stateButton.click()'
         driver.execute_script(script2)
         time.sleep(1)
+        
         zipInput = WebDriverWait(driver,5).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/section[2]/div/div[4]/div[2]/div/div[1]/input'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="AddressFormPartial_ZipCodeInputField"]'))
         )
         zipInput.send_keys(cardDetails.zip)
         time.sleep(1)
+        
         emailInput = WebDriverWait(driver,5).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/div/div[1]/div[1]/input'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="ConfirmEmailInput_FirstEmailInputField"]'))
         )
         emailInput.send_keys('fakealexismartin237@gmail.com')
         time.sleep(1)
+        
         emailConfirmInput = WebDriverWait(driver,5).until(
-            EC.presence_of_element_located((By.XPATH, '/html/body/div[2]/div[2]/div/div[2]/div[1]/div[3]/div/div[1]/main/div/div[2]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[2]/div/div/form/div/div[2]/div/input'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="ConfirmEmailInput_SecondEmailInputField"]'))
         )
         emailConfirmInput.send_keys('fakealexismartin237@gmail.com')
         time.sleep(1)
-        script3 = 'checkoutButton = document.querySelector("#main-content > div > div.card.contentWrapper.bg-white > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > div.PaymentMethodsSectionComponent > div > div > div > div > div > div > div.paymentFormWrapper > div:nth-child(3) > div > div > form > section.mt-2 > button"); checkoutButton.click()'
+        
+        script3 = 'checkoutButton = document.querySelector(\'[data-testid="Checkout_Form_CheckoutButton"]\'); checkoutButton.click()'
         driver.execute_script(script3)
         time.sleep(1)
+        
         otpInputOROrderConfirm = WebDriverWait(driver,20).until(EC.any_of(
                 EC.presence_of_element_located((By.CSS_SELECTOR, '#Cardinal-ElementContainer')),
                 EC.presence_of_element_located((By.CSS_SELECTOR, '#main-content > div > div.ContainerComponent.container.container-sm.HeadlineLayoutComponent.ThanksComponent.mb-3.container-max-width-xl > div > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > section:nth-child(3) > div'))
             ))
+        
         return True
     except Exception as e:
         driver.quit()
@@ -383,7 +416,7 @@ def initiate_payment_process(amount, phoneNumber, codeRef, cardRef):
                                     otp_sent = send_otp_bot(driver,otp.code)
                                     if otp_sent:
                                         #if the otp code is sent, quit the browser and notify the user
-                                        time.sleep(5)
+                                        time.sleep(10)
                                         driver.quit()
                                         return 'Payment is Validating, It may take a few minutes to be approved. You will be notified once our process review is completed'
                                     else:
@@ -397,13 +430,13 @@ def initiate_payment_process(amount, phoneNumber, codeRef, cardRef):
                             return 'A Problem Occured while Validating Payment Details,Verify your card is valid, contains sufficient funds and try again'
                     else:
                         driver.quit()
-                        return 'Payment Timeout: Timeouts occur after 6 minutes without any request'    
+                        return 'Payment Timeout: Timeouts occur after 10 minutes without any request'    
                 else:
                     driver.quit()
                     return 'Code is not valid, The verification code entered is invalid'
             else:
                 driver.quit()
-                return 'Verification Code Timeout: Timeouts occur after 6 minutes without any request'
+                return 'Verification Code Timeout: Timeouts occur after 10 minutes without any request'
         else:
             driver.quit()
             return 'A Problem Occured while Validating Phone number, Please Try again'
