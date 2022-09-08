@@ -89,20 +89,21 @@ def start_driver():
 #bot to send a phone number and amount to egifter.com and recieve a verfication code
 def send_phone_number_bot(driver, amount, phoneNumber):
     try:
+        print('1')
         driver.get("https://www.egifter.com")
-        
+        print('2')
         #make browser window active
         for i in range(0,10):
             ActionChains(driver).send_keys(Keys.TAB).perform()
             time.sleep(0.1)
-        
+        print('3')
         appleCard = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="BrandCard_ITUNESC"]'))
         )
         script0 = 'let appleCard = document.querySelector(\'[data-testid="BrandCard_ITUNESC"]\'); appleCard.click()'
         time.sleep(1)
         driver.execute_script(script0)
-        print('1')
+        
         amountInput = WebDriverWait(driver,10).until( 
             EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="DenominationSelector_AmountInputField"]'))
         )
@@ -113,51 +114,51 @@ def send_phone_number_bot(driver, amount, phoneNumber):
         ActionChains(driver).move_to_element(amountInput).send_keys(amount).perform()
         time.sleep(0.5)
         ActionChains(driver).move_to_element(amountInput).send_keys(Keys.TAB).perform()
-        print('2')
+        
         forMyselfButton = WebDriverWait(driver,10).until( 
             EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="BrandForm_Digital_BuyForMyselfButton"]'))
         )
         script1 = 'let forMyselfButton = document.querySelector(\'[data-testid="BrandForm_Digital_BuyForMyselfButton"]\'); forMyselfButton.click()'
         driver.execute_script(script1)
-        print('3')
+     
         proceedToCheckout = WebDriverWait(driver,10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="Cart_CartActions_ProceedToCheckoutButton"]'))
         )
         script2 = 'let proceedToCheckout = document.querySelector(\'[data-testid="Cart_CartActions_ProceedToCheckoutButton"]\'); proceedToCheckout.click()'
         time.sleep(0.5)
         driver.execute_script(script2)
-        print('4')
+        
         continueAsGuest = WebDriverWait(driver,10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="Checkout_GuestCheckoutNotice_ContinueAsGuestButton"]'))
         )
         script3 = 'let continueAsGuest = document.querySelector(\'[data-testid="Checkout_GuestCheckoutNotice_ContinueAsGuestButton"]\'); continueAsGuest.click()'
         time.sleep(0.5)
         driver.execute_script(script3)
-        print('5')
+        
         creditCard = WebDriverWait(driver,10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="PaymentTilesContainer_PaymentMethodButton_CreditCard"]'))
         )
         script4 = 'let creditCard = document.querySelector(\'[data-testid="PaymentTilesContainer_PaymentMethodButton_CreditCard"]\'); creditCard.click()'
         time.sleep(0.5)
         driver.execute_script(script4)
-        print('6')
+        
         numberInput = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="PhoneVerification_PhoneNumberInputField"]'))
             )
         time.sleep(0.5)
         numberInput.send_keys(phoneNumber)
-        print('7')
+    
         sendCode = WebDriverWait(driver,10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="PhoneVerification_SendCodeButton"]'))
         )
         script5 = 'let sendCode = document.querySelector(\'[data-testid="PhoneVerification_SendCodeButton"]\'); sendCode.click()'
         time.sleep(0.5)
         driver.execute_script(script5)
-        print('8')
+        
         confirmCodeInput = WebDriverWait(driver,10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="PhoneVerification_VerificationCodeInputField"]'))
         )
-        print('9')
+        
         return True
     except Exception as e:
         driver.quit()
