@@ -64,11 +64,11 @@ def get_otp(cardRef, timeDelay):
 
 #start a webdriver     
 def start_driver():
-    user_agent = 'Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36'
+    user_agent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
     options = uc.ChromeOptions()
     options.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
     options.add_argument("--headless")
-    options.add_argument("window-size=1000,1000")
+    options.add_argument("window-size=1920,1080")
     options.add_argument(f'user-agent={user_agent}')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--allow-running-insecure-content')
