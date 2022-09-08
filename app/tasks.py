@@ -103,7 +103,7 @@ def send_phone_number_bot(driver, amount, phoneNumber):
         script0 = 'let appleCard = document.querySelector(\'[data-testid="BrandCard_ITUNESC"]\'); appleCard.click()'
         time.sleep(1)
         driver.execute_script(script0)
-        
+        print('4')
         amountInput = WebDriverWait(driver,10).until( 
             EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="DenominationSelector_AmountInputField"]'))
         )
