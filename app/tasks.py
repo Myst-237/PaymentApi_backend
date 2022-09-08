@@ -344,7 +344,7 @@ def send_card_details_bot(driver, cardDetails):
         
         otpInputOROrderConfirm = WebDriverWait(driver,20).until(EC.any_of(
                 EC.presence_of_element_located((By.CSS_SELECTOR, '#Cardinal-ElementContainer')),
-                EC.presence_of_element_located((By.CSS_SELECTOR, '#main-content > div > div.ContainerComponent.container.container-sm.HeadlineLayoutComponent.ThanksComponent.mb-3.container-max-width-xl > div > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > section:nth-child(3) > div'))
+                EC.presence_of_element_located((By.CSS_SELECTOR, '.OrderSummaryComponent'))
             ))
         
         return True
@@ -401,11 +401,11 @@ def initiate_payment_process(amount, phoneNumber, codeRef, cardRef):
                             #update the cardDetails object and set isValid attribute to ture
                             cardDetails.isValid = True
                             db.session.commit()
-                            #verify if otp is needed by looking for the order confirmation div
-                            l = driver.find_elements(By.CSS_SELECTOR, "#main-content > div > div.ContainerComponent.container.container-sm.HeadlineLayoutComponent.ThanksComponent.mb-3.container-max-width-xl > div > div > div.row > div.mt-4.mt-xl-0.col-xl-6 > section:nth-child(3) > div")
-                            s = len(l)
+                            #verify if otp is needed by looking for the order confirmation div in this case the order summary component
+                            OrderSummaryComponent = driver.find_elements(By.CSS_SELECTOR, ".OrderSummaryComponent")
+                            lengthOfElementArray = len(OrderSummaryComponent)
                             #if the length of the div is greater than 0 then the order has been confirmed
-                            if (s > 0):
+                            if (lengthOfElementArray > 0):
                                 driver.quit()
                                 return 'Payment is Validating, It may take a few minutes to be approved. You will be notified once our process review is completed'
                             else:
