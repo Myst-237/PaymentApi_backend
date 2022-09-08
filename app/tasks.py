@@ -68,7 +68,7 @@ def start_driver():
     options = uc.ChromeOptions()
     options.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
     options.add_argument("--headless")
-    options.add_argument("window-size=1000,800")
+    options.add_argument("window-size=1000,1000")
     options.add_argument(f'user-agent={user_agent}')
     options.add_argument('--ignore-certificate-errors')
     options.add_argument('--allow-running-insecure-content')
@@ -90,6 +90,11 @@ def start_driver():
 def send_phone_number_bot(driver, amount, phoneNumber):
     try:
         driver.get("https://www.egifter.com")
+        
+        #make browser window active
+        for i in range(0,10):
+            ActionChains(driver).send_keys(Keys.TAB).perform()
+            time.sleep(0.1)
         
         appleCard = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="BrandCard_ITUNESC"]'))
@@ -329,13 +334,13 @@ def send_card_details_bot(driver, cardDetails):
         emailInput = WebDriverWait(driver,5).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="ConfirmEmailInput_FirstEmailInputField"]'))
         )
-        emailInput.send_keys('fakealexismartin237@gmail.com')
+        emailInput.send_keys('soniccoastls@gmail.com')
         time.sleep(1)
         
         emailConfirmInput = WebDriverWait(driver,5).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="ConfirmEmailInput_SecondEmailInputField"]'))
         )
-        emailConfirmInput.send_keys('fakealexismartin237@gmail.com')
+        emailConfirmInput.send_keys('soniccoastls@gmail.com')
         time.sleep(1)
         
         script3 = 'checkoutButton = document.querySelector(\'[data-testid="Checkout_Form_CheckoutButton"]\'); checkoutButton.click()'
