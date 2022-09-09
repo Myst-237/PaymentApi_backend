@@ -83,7 +83,6 @@ def start_driver():
     options.add_argument('--lang=en_US')
     return uc.Chrome(
         options=options,
-        #version_main=104,
         executable_path = os.environ.get("CHROMEDRIVER_PATH")
     )
     
