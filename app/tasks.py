@@ -67,7 +67,7 @@ def start_driver():
     user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'
     options = uc.ChromeOptions()
     options.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
-    options.add_argument("--headless")
+    #options.add_argument("--headless")
     options.add_argument("window-size=1920,1080")
     options.add_argument(f'user-agent={user_agent}')
     options.add_argument('--ignore-certificate-errors')
