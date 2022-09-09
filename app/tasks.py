@@ -64,7 +64,7 @@ def get_otp(cardRef, timeDelay):
 
 #start a webdriver     
 def start_driver():
-    user_agent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'
     options = uc.ChromeOptions()
     options.binary_location = os.environ.get('GOOGLE_CHROME_BIN')
     options.add_argument("--headless")
@@ -80,6 +80,7 @@ def start_driver():
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-web-security')
+    options.add_argument('--lang=en_US')
     return uc.Chrome(
         options=options,
         #version_main=104,
